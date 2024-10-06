@@ -1,6 +1,6 @@
 import json
 import os
-from Bio import Entrez
+
 import xmltodict
 import time
 from mdapps import EntrezFetcher
@@ -74,7 +74,6 @@ def extract_information(gb_seq,error_list):
         "BioProject_ID": bp_db_id,
         "Gene_classification": 'Hypothetical protein'
     }
-    GBSeq_locus=gb_seq.get("GBSeq_locus", "")
 
     if bs_db_id:
         Biosample_id = EntrezFetcher.search_Biosample(bs_db_id)
@@ -82,39 +81,25 @@ def extract_information(gb_seq,error_list):
         if Biosample_details_xml:
             try:
                 data_dict = xmltodict.parse(Biosample_details_xml)
-                Biosample_list = extract_additional_info(data_dict)
+                Biosample_list = extract_additional_info1(data_dict)
                 Biosample_dict = {'Biosample' : Biosample_list}
-
                 GBSeq_dict.update(Biosample_dict)
             except Exception as e:
                 error_list.append({"biosample_dict": data_dict, "error": str(e)})
                 print(f"An error occurred while processing Biosample details: {e}")
-
-    fasta_id = EntrezFetcher.search_Fasta(GBSeq_locus)
-    fasta_details_xml = EntrezFetcher.fetch_Fasta_details(fasta_id)
-    if fasta_details_xml:
-        try:
-            data_dict_fasta = xmltodict.parse(fasta_details_xml)
-            fasta_dict = {"TSeq_accver": data_dict_fasta["TSeqSet"]["TSeq"]["TSeq_accver"],
-                        "TSeq_defline": data_dict_fasta["TSeqSet"]["TSeq"]["TSeq_defline"],
-                        "TSeq_sequence": data_dict_fasta["TSeqSet"]["TSeq"]["TSeq_sequence"]}
-            GBSeq_dict.update(fasta_dict)
-        except Exception as e:
-                error_list.append({"FASTA_dict": data_dict_fasta, "error": str(e)})
-                print(f"An error occurred while processing FASTA details: {e}")
-            
-
 
     if not GBSeq_dict.get('bioproject_label') and bp_db_id:
         GBSeq_dict['bioproject_label'] = bp_db_id
 
     return GBSeq_dict
 
-def extract_additional_info(bio_sample_set):
+def extract_additional_info1(bio_sample_set):
     """Extract additional information from the BioSample details."""
+    # print(bio_sample_set)
     extracted_info = []
+    bio_samples = bio_sample_set.get('BioSampleSet', {}).get('BioSample', [])
 
-    bio_samples = bio_sample_set.get('biosample_dict', {}).get('BioSampleSet', {}).get('BioSample', [])
+    # bio_samples = bio_sample_set.get('biosample_dict', {}).get('BioSampleSet', {}).get('BioSample', [])
 
     # Check if bio_samples is a dictionary; if so, wrap it in a list
     if isinstance(bio_samples, dict):
@@ -164,7 +149,10 @@ def extract_additional_info(bio_sample_set):
         extracted_info.append(info)
 
     # Output extracted information
+    
     return extracted_info
+
+    
 
 def log_errors_to_file(error_inputs, filename,output_error_dir):
     """Log errors to a file for later review."""

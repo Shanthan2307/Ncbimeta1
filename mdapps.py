@@ -5,7 +5,7 @@ import time
 import os
 from http.client import IncompleteRead
 from urllib.error import HTTPError
-
+Entrez.api_key = '4972e450c573d64ce1ed96ab80cbe0e0af09'
 Entrez.email = "your_email@example.com"
 
 
@@ -143,3 +143,22 @@ class EntrezFetcher:
                 attempt += 1
                 time.sleep(5)
         raise Exception("Failed to fetch details after 10 attempts")
+
+
+# Example usage
+if __name__ == "__main__":
+    api_key = os.getenv("ENTREZ_API_KEY", "")  # Optionally fetch from environment
+    email = os.getenv("ENTREZ_EMAIL", "your_email@example.com")  # Optionally fetch from environment
+    fetcher = EntrezFetcher(api_key, email)
+
+    # # Example search for nucleotide
+    # try:
+    #     nucleotide_ids = fetcher.search_nucleotide("Homo sapiens")
+    #     print("Nucleotide IDs:", nucleotide_ids)
+
+    #     # Fetch details for those IDs
+    #     if nucleotide_ids:
+    #         details = fetcher.fetch_nucleotide_details(nucleotide_ids)
+    #         print("Nucleotide Details:", details)
+    # except Exception as e:
+    #     print("An error occurred:", e)

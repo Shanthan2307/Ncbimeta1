@@ -35,6 +35,5 @@ python ncbimeta1.py --query "genome data" --output results.csv
 ## Contributing
 Contributions are welcome! Please feel free to submit issues or pull requests.
 
-## License
-This project is licensed under the MIT License.
+
 
